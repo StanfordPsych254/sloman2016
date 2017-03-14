@@ -1,0 +1,103 @@
+---
+title: "Sloman & Rabb Replication Analysis"
+author: "Larry Liu"
+date: "March 3, 2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(lme4)
+```
+
+## R Markdown
+
+```{r}
+#Load in the data
+raw_data <- read_csv('exp2_raw_data_with_exclusions.csv', col_names = TRUE) #Manually removed subjects who admitted to using outside sources
+
+#Clean up data
+clean_data <- raw_data %>%
+  rename(Age = Q44, Sex = Q45, Education = Q46, External_confound = Q42) %>% #Rename the measures
+  filter(row_number()!=1) %>% #Remove the secondary headers
+  filter(`Attention check` == 16) %>% #only keep subjects who pass the attention check
+  mutate_each(funs(as.numeric(., na.rm=TRUE)), contains("CoK")) %>% #Change all Likert fields to numeric types
+  mutate_each(funs(factor), c(Sex, Education)) #Change to factor types when applicable
+
+clean_data
+```
+
+```{r}
+#Convert to long form
+df <- clean_data %>%
+  gather(Condition, Understanding, `Public/Non-CoK Smoke`:`Secret/CoK Glass`, na.rm = TRUE) %>% #Do not consider NAs
+  mutate(Log_Understanding = log(Understanding)) %>% #Calculate log understanding values
+  separate(Condition, #Separate conditions and phenomenon type 
+           into = c("Condition","Phenomenon"), 
+           sep = " ") %>%
+  mutate_each(funs(factor), c(Condition, Phenomenon)) #Change into factors
+
+df
+```
+```{r}
+#Verify that I can create the same grouped means as Table 2 in original study
+df %>% 
+  group_by(Condition, Phenomenon) %>%
+  summarise(mean = mean(Understanding), sd = sd(Understanding))
+
+
+```
+
+
+```{r}
+#Perform anova using model from original study
+
+test <- df %>%
+  group_by(Participant, Condition) %>%
+  summarise(mean = mean(Understanding)) %>%
+  mutate(Log_Understanding = log(mean))
+
+model_rep <- lmer(Log_Understanding ~ Condition + (1 | Participant), data=test) #This model creates the F-statistic originally reported.
+model <-  lmer(Log_Understanding ~ 1 + (1 | Participant), data=test)
+```
+###The reported statistic comes from this:
+```{r}
+anova(model_rep) #The F-statistic reported comes from this line
+anova(model,model_rep)
+summary(model_rep)
+
+```
+
+###But they claimed to use a repeated measures anova, which would be this:
+```{r}
+model_aov <- aov(Log_Understanding ~ Condition + Error(Participant/Condition), data=test)
+summary(model_aov)
+```
+
+###Additionally, the original paper used paired t-test between conditions
+```{r}
+public_cok <- test %>%
+  filter(Condition == "Public/CoK")
+
+public_noncok <- test %>%
+  filter(Condition == "Public/Non-CoK")
+
+secret_cok <- test %>%
+  filter(Condition == "Secret/CoK")
+
+t.test(as.matrix(public_noncok[,"Log_Understanding"]), as.matrix(public_cok[,"Log_Understanding"]), var.equal = TRUE, paired=TRUE)
+t.test(as.matrix(secret_cok[,"Log_Understanding"]), as.matrix(public_cok[,"Log_Understanding"]), var.equal = TRUE, paired=TRUE)
+t.test(as.matrix(public_noncok[,"Log_Understanding"]), as.matrix(secret_cok[,"Log_Understanding"]), var.equal = TRUE, paired=TRUE)
+
+```
+
+
+```{r}
+#New proposed model
+
+model_new <- lmer(Understanding ~ Condition + (Condition | Participant) + (1 | Phenomenon), data=df)
+anova(model_new)
+summary(model_new)
+
+```
