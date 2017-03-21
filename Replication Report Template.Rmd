@@ -24,13 +24,16 @@ The original paper can be found here:
 
 <!-- Original effect size, power analysis for samples to achieve 80%, 90%, 95% power to detect that effect size.  Considerations of feasibility for selecting planned sample size. -->
 
-Power analysis pending due to confusion/potential error in original paper about the analysis performed.
+In the original paper, Sloman and Rabb report an $\eta^2$ value of 0.051. Using G*Power, we determine that the equivalent effect size for a repeated measures ANOVA is 0.2318. Using this effect size, we determine that the necessary sample size at .80, .90, and .95 power standards are 93, 121, and 147 respectively.
+
+![G*Power Screenshot](writeup/power_calculation.png)
 
 ###Planned Sample
 
 <!-- Planned sample size and/or termination rule, sampling frame, known demographics if any, preselection rules if any. -->
 
-We are planning on recruiting 365 US residents from Amazon's Mechanical Turk. This is equivalent to 2.5x the sample size of the original study.
+In the original study, Sloman and Rabb initially recruited 146 participants on Amazon Mechanical Turk, but found that 40 failed an attention check, a 27.39% failure rate. Assuming the same proportion of participants fail the attention checks, we would need to recruit 129, 167, or 203 participants at the .80, .90, and .95 power standards respectively to achieve the desired sample size.
+
 
 ###Materials
 
@@ -38,13 +41,21 @@ We are planning on recruiting 365 US residents from Amazon's Mechanical Turk. Th
 
 This replication reuses the open materials on the original article's OSF posting, which can be found here: https://osf.io/24kvu/
 
+The additional attention check uses this prompt, and participants are able to select as few or as many of the options presented in random order:
+
+> "For the purposes of this survey, we need to know that you have been paying attention to the descriptions. Can you select *every single one* of the discoveries you've read about in this survey?" [Flying Fish, Reflective Smoke, Self-Forming Glass, Glowing Rocks, Liquid Helium Weather Systems, Warm Ice, Non-Flammable Wood, Jumping Snails, Cold Energy]
+
 ###Procedure	
 
 <!-- Can quote directly from original article - just put the text in quotations and note that this was followed precisely.  Or, quote directly and just point out exceptions to what was described in the original article. -->
 
 From the original article:
 
-"One hundred forty-six U.S. residents (56% female, 44% male; mean age = 33.9 years) were recruited using Amazon's Mechanical Turk, screened for participation in the previous experiment, and given a small payment. Sample size was chosen to satisfy counterbalancing schemes and was in keeping with related prior research. Participants received the same instructions as in Experiment 1, except for one modification: The cover story claimed that the study concerned recent scientific discoveries "made by DARPA, the research agency of the U.S. military," an entity chosen for its power to keep scientific knowledge absolutely secret. Participants rated their understanding of six fictional natural phenomena (an example is shown in Table 1). Each participant read two descriptions of phenomena that had been thoroughly explained by the discovering scientists in a published article (public CK condition); two descriptions of different phenomena that had not yet been explained but that had been described in a published article by the scientists who discovered it (public no-CK condition); and two descriptions of still other phenomena that had been thoroughly explained but only in classified documents (secret CK condition). The descriptions contained no causal or explanatory information. Items were counterbalanced across conditions and across two random presentation orders. For reasons unrelated to our current purposes, each participant then generated a step-by-step causal explanation for two of the phenomena and rerated understanding of the two items. They also answered a question incorporated as an attention check and were asked if they had consulted external Web sites during the experiment.""
+> "One hundred forty-six U.S. residents (56% female, 44% male; mean age = 33.9 years) were recruited using Amazon's Mechanical Turk, screened for participation in the previous experiment, and given a small payment. Sample size was chosen to satisfy counterbalancing schemes and was in keeping with related prior research. Participants received the same instructions as in Experiment 1, except for one modification: The cover story claimed that the study concerned recent scientific discoveries "made by DARPA, the research agency of the U.S. military," an entity chosen for its power to keep scientific knowledge absolutely secret. Participants rated their understanding of six fictional natural phenomena (an example is shown in Table 1). Each participant read two descriptions of phenomena that had been  thoroughly explained by the discovering scientists in a published article (public CK condition); two descriptions of different phenomena that had not yet been explained but that had been described in a published article by the scientists who discovered it (public no-CK condition); and two descriptions of still other phenomena that had been thoroughly explained but only in classified documents (secret CK condition). The descriptions contained no causal or explanatory information. Items were counterbalanced across conditions and across two random presentation orders. For reasons unrelated to our current purposes, each participant then generated a step-by-step causal explanation for two of the phenomena and rerated understanding of the two items. They also answered a question incorporated as an attention check and were asked if they had consulted external Web sites during the experiment."
+
+Unlike the original study, we use a different randomization scheme. The order of the conditions (public CK, public no-CK, secret CK) were still counterbalanced, but rather than 2 random presentation orders of the phenomena, we use a true random presentation order of the 6 phenomenas using a Fisher-Yates Shuffle. That is, the $N$th question that a participant saw was the $N$th phenomena after shuffling the phenomena, and language from the first condition was shown when $N=1$ or $N=2$, the second condition shown when $N=3$ or $N=4$, and the final condition shown $N=5$ or $N=6$.
+
+The participants then completed the same attention check and external website question used in the original paper. We used an additional manipulation check not in the original paper where participants are asked to select the phenomena that they read about out of a list of the 6 phenomena presented and an additional 3 unseen phenomena. However, a pilot of the experiment produced <50% success rate, suggesting that perhaps the memory demands recalling the phenomena are too high. Nevertheless, we choose to include the attention check and conduct all analyses with and without exclusions on this final attention check.
 
 ###Analysis Plan
 
@@ -52,16 +63,18 @@ From the original article:
 
 <!-- **Clarify key analysis of interest here**  You can also pre-specify additional analyses you plan to do. -->
 
-As stated in the original paper, we will use a repeated measures ANOVA on the log-transformed ratings of understanding. However, it appears that the report statistic in the original paper comes from a mixed effects linear model on the log-transformed ratings of understanding, which we will also use. Finally, the original paper doesn't appear to adequately justify the use of the log-transformed ratings, so we will use the absolute ratings with the same models. Furthermore, we will see if there is a linear order effect based on the presentation order of the phenomena.
+As stated in the original paper, we will use a repeated measures ANOVA on the log-transformed ratings of understanding. We also try modeling the data with a mixed effects linear model on the log-transformed ratings of understanding. Finally, we perform both the repeated emasures ANOVA and the mixed effects model on the absolute ratings of understanding, since there does not appear to be a reason to use the log-transformed ratings of understanding in the construct we are testing.
 
-Additional, we have added a manipulation check that was not used in the original study. We will exclude any participant who has more than 1 error (false positive or false negative) in identifying the different fictitious phenomena used in the study. We will continue to exclude participants who fail the attention check or claim to have used outside resources (see Materials).
+To test for any ordering effects (e.g.potentially due to fatigue or learning), we will see if there is a linear order effect based on the presentation order of the phenomena.
+
+As mentioned earlier, we have added an manipulation check that was not used in the original study, though its efficacy is in question. In addition to performing the above analyses using only the exclusions from the original paper, we will also try those analyses excluding any participant who has more than 1 error (false positive or false negative) in identifying the different fictitious phenomena used in the study. (See Materials).
 
 ###Differences from Original Study
 
 <!-- Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect. -->
 
 Key differences in this replication are:
--A larger sample consisting of 365 participants
+-A larger sample consisting of 167 participants before exclusions.
 -A different counterbalancing scheme. Counterbalancing still exists across conditions (for 6 permutations of presentation order of the 3 conditions), but the order of the phenomena is a true random presentation (as opposed to randomly picked from a limited set of sequences for a pseudo-random order)
 -Different analyses: in addition to replicating the model in the original paper using log-transformed data, we will run the same model on the absolute data and also additionally run a mixed effect model.
 
@@ -88,6 +101,7 @@ Data preparation following the analysis plan.
 library(tidyverse)
 library(stringr)
 library(lme4)
+library(ez)
 ```
 
 
@@ -98,7 +112,7 @@ NUM_PHENOMENA = 6
 NUM_SCENARIOS_PER_SUBJECT = 6
 
 ####Import data
-df_raw <- read_csv(file = "data/pilotA.csv")
+df_raw <- read_csv(file = "data/pilotB.csv")
 instructions_colnum <- which(colnames(df_raw) == "Instructions")
 problem_text <- df_raw[1,(instructions_colnum+1):(instructions_colnum+(NUM_CONDITIONS * NUM_PHENOMENA * NUM_SCENARIOS_PER_SUBJECT))]
 
@@ -148,7 +162,7 @@ df_long <- df_long %>%
            (1 - `Manipulation Check_3`) + (1 - `Manipulation Check_4`) + #False negatives
            (1 - `Manipulation Check_5`) + (1 - `Manipulation Check_6`) + #False negatives
            `Manipulation Check_7` + `Manipulation Check_8` + `Manipulation Check_9`) %>% #False positives
-  filter(`Manipulation Check Errors` <= 1)
+  filter(`Manipulation Check Errors` <= Inf) # This line will be changed to 1 when including the manipulation check 
 
 df_long
 ```
@@ -166,35 +180,29 @@ df_long %>%
 ```
 
 ```{r}
-#Recreate statistics that the original paper created
-test <- df_long %>%
+#Original paper averages within condition and subject
+df_grouped_by_subject_and_cond <- df_long %>%
   group_by(subject_id, condition) %>%
   summarise(mean = mean(rating)) %>%
   mutate(Log_Understanding = log(mean))
-
-model_rep <- lmer(Log_Understanding ~ condition + (1 | subject_id), data=test) #Original model done in the study replicated
-model <-  lmer(Log_Understanding ~ 1 + (1 | subject_id), data=test)
-
-anova(model_rep) 
-anova(model,model_rep)
-summary(model_rep) #Original F-statistic reported from here
+df_grouped_by_subject_and_cond
 ```
 
 ```{r}
-#Original paper claimed to have used a repeated measures anova
-model_aov <- aov(Log_Understanding ~ condition + Error(subject_id/condition), data=test)
-summary(model_aov)
+#Repeated Measures Anova used in original paper: repeated measures ANOVA, log transformed means
+aov_logs <- ezANOVA(data = df_grouped_by_subject_and_cond, dv = Log_Understanding, wid = subject_id, within = condition, detailed=TRUE)
+aov_logs
 ```
 
 ```{r}
-#Original paper also performed a t-test between the conditions
-public_cok <- test %>%
+#Original paper also performed a t-test between the conditions' log-transformed means
+public_cok <- df_grouped_by_subject_and_cond %>%
   filter(condition == "public_cok")
 
-public_noncok <- test %>%
+public_noncok <- df_grouped_by_subject_and_cond %>%
   filter(condition == "public_noncok")
 
-secret_cok <- test %>%
+secret_cok <- df_grouped_by_subject_and_cond %>%
   filter(condition == "secret_cok")
 
 t.test(as.matrix(public_noncok[,"Log_Understanding"]), as.matrix(public_cok[,"Log_Understanding"]), var.equal = TRUE, paired=TRUE)
@@ -203,11 +211,60 @@ t.test(as.matrix(public_noncok[,"Log_Understanding"]), as.matrix(secret_cok[,"Lo
 
 ```
 
+```{r}
+df_long_ME <- df_long %>%
+  mutate(Log_Understanding = log(rating))
+
+#Mixed Effects Model with log transformed values, without averaging within condition
+MEModel_logs <- lmer(Log_Understanding ~ condition + (1 | subject_id) + (1 | phenomenon), data=df_long_ME) #Contains main effect of condition with random effects of subjects and phenomenon
+anova(MEModel_logs) 
+summary(MEModel_logs)
+```
+
+```{r}
+#Additionally considers order effects
+MEModel_logs_ordered <- lmer(Log_Understanding ~ condition + (1 | subject_id) + (1 | phenomenon) + order, data=df_long_ME)
+anova(MEModel_logs_ordered) 
+summary(MEModel_logs_ordered)
+
+anova(MEModel_logs, MEModel_logs_ordered)
+```
+###We try each of the above analyses on the non log transformed data
+```{r}
+#Repeated Measures Anova used in original paper: repeated measures ANOVA, absolute means
+aov_abs <- ezANOVA(data = df_grouped_by_subject_and_cond, dv = mean, wid = subject_id, within = condition, detailed=TRUE)
+aov_abs
+```
+```{r}
+#Paired comparison t-tests between the conditions absolute means
+t.test(as.matrix(public_noncok[,"mean"]), as.matrix(public_cok[,"mean"]), var.equal = TRUE, paired=TRUE)
+t.test(as.matrix(secret_cok[,"mean"]), as.matrix(public_cok[,"mean"]), var.equal = TRUE, paired=TRUE)
+t.test(as.matrix(public_noncok[,"mean"]), as.matrix(secret_cok[,"mean"]), var.equal = TRUE, paired=TRUE)
+
+```
+
+```{r}
+
+#Mixed Effects Model with log transformed values, without averaging within condition
+MEModel_abs <- lmer(rating ~ condition + (1 | subject_id) + (1 | phenomenon), data=df_long_ME) #Contains main effect of condition with random effects of subjects and phenomenon
+anova(MEModel_abs) 
+summary(MEModel_abs)
+```
+
+```{r}
+#Additionally considers order effects
+MEModel_abs_ordered <- lmer(rating ~ condition + (1 | subject_id) + (1 | phenomenon) + order, data=df_long_ME)
+anova(MEModel_abs_ordered) 
+summary(MEModel_abs_ordered)
+
+anova(MEModel_abs, MEModel_abs_ordered)
+```
+
 *Side-by-side graph with original graph is ideal here*
 
 ###Exploratory analyses
 
-Any follow-up analyses desired (not required).  
+We also collected demographic data (Age, Gender, Race) and can explore whether or not those interact with the effects we find.
 
 ## Discussion
 
