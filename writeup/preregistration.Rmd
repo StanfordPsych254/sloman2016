@@ -16,7 +16,7 @@ output:
 
 <!-- [No abstract is needed.]  Each replication project will have a straightforward, no frills report of the study and results.  These reports will be publicly available as supplementary material for the aggregate report(s) of the project as a whole.  Also, to maximize project integrity, the intro and methods will be written and critiqued in advance of data collection.  Introductions can be just 1-2 paragraphs clarifying the main idea of the original study, the target finding for replication, and any other essential information.  It will NOT have a literature review -- that is in the original publication. You can write both the introduction and the methods in past tense.   -->
 
-The original paper can be found here: 
+The original paper can be found here: http://journals.sagepub.com.laneproxy.stanford.edu/doi/full/10.1177/0956797616662271
 
 ##Methods
 
@@ -72,9 +72,9 @@ To test for any ordering effects (e.g.potentially due to fatigue or learning), w
 <!-- Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect. -->
 
 Key differences in this replication are:
--A larger sample consisting of 167 participants before exclusions.
--A different counterbalancing scheme. Counterbalancing still exists across conditions (for 6 permutations of presentation order of the 3 conditions), but the order of the phenomena is a true random presentation (as opposed to randomly picked from a limited set of sequences for a pseudo-random order)
--Additional analyses: in addition to replicating the model in the original paper using log-transformed data, we will run the same model on the absolute data and also additionally run a mixed effect model.
+*A larger sample consisting of 167 participants before exclusions.
+*A different counterbalancing scheme. Counterbalancing still exists across conditions (for 6 permutations of presentation order of the 3 conditions), but the order of the phenomena is a true random presentation (as opposed to randomly picked from a limited set of sequences for a pseudo-random order)
+*Additional analyses: in addition to replicating the model in the original paper using log-transformed data, we will run the same model on the absolute data and also additionally run a mixed effect model.
 
 ### Methods Addendum (Post Data Collection)
 
@@ -168,7 +168,7 @@ df_long
 ### Confirmatory analysis
 
 The analyses as specified in the analysis plan.  
-##This recreates Table 2 from the original paper.
+####This recreates Table 2 from the original paper.
 ```{r}
 #Recreate Table 2 from original paper
 df_long %>% 
@@ -186,14 +186,14 @@ df_grouped_by_subject_and_cond <- df_long %>%
 df_grouped_by_subject_and_cond
 ```
 
-##This is the primary analysis, replicating the repeated measures ANOVA used in the original paper.
+####This is the primary analysis, replicating the repeated measures ANOVA used in the original paper.
 ```{r}
 #Repeated Measures Anova used in original paper: repeated measures ANOVA, log transformed means
 aov_logs <- ezANOVA(data = df_grouped_by_subject_and_cond, dv = Log_Understanding, wid = subject_id, within = condition, detailed=TRUE)
 aov_logs
 ```
 
-##This replciates the paired comparisons between conditions used in the original paper.
+####This replciates the paired comparisons between conditions used in the original paper.
 ```{r}
 #Original paper also performed a t-test between the conditions' log-transformed means
 public_cok <- df_grouped_by_subject_and_cond %>%
@@ -211,11 +211,9 @@ t.test(as.matrix(public_noncok[,"Log_Understanding"]), as.matrix(secret_cok[,"Lo
 
 ```
 
-*Side-by-side graph with original graph is ideal here*
-
 ###Exploratory analyses (analyses not in the original paper)
 
-##Mixed effects model with log transformed values
+####Mixed effects model with log transformed values
 
 ```{r}
 df_long_ME <- df_long %>%
@@ -227,7 +225,7 @@ anova(MEModel_logs)
 summary(MEModel_logs)
 ```
 
-##Tests ordering effects on log-transformed values
+####Tests ordering effects on log-transformed values
 ```{r}
 #Additionally considers order effects
 MEModel_logs_ordered <- lmer(Log_Understanding ~ condition + (1 | subject_id) + (1 | phenomenon) + order, data=df_long_ME)
@@ -237,16 +235,16 @@ summary(MEModel_logs_ordered)
 anova(MEModel_logs, MEModel_logs_ordered)
 ```
 
-##We try the same analyses on values without log transformation
+####We try the same analyses on values without log transformation
 
-#Repeated measures ANOVA
+#####Repeated measures ANOVA
 ```{r}
 #Repeated Measures Anova used in original paper: repeated measures ANOVA, absolute means
 aov_abs <- ezANOVA(data = df_grouped_by_subject_and_cond, dv = mean, wid = subject_id, within = condition, detailed=TRUE)
 aov_abs
 ```
 
-#Paired comparisons
+#####Paired comparisons
 ```{r}
 #Paired comparison t-tests between the conditions absolute means
 t.test(as.matrix(public_noncok[,"mean"]), as.matrix(public_cok[,"mean"]), var.equal = TRUE, paired=TRUE)
@@ -255,7 +253,7 @@ t.test(as.matrix(public_noncok[,"mean"]), as.matrix(secret_cok[,"mean"]), var.eq
 
 ```
 
-#Mixed effects models
+#####Mixed effects models
 ```{r}
 #Mixed Effects Model with log transformed values, without averaging within condition
 MEModel_abs <- lmer(rating ~ condition + (1 | subject_id) + (1 | phenomenon), data=df_long_ME) #Contains main effect of condition with random effects of subjects and phenomenon
@@ -263,7 +261,7 @@ anova(MEModel_abs)
 summary(MEModel_abs)
 ```
 
-#Ordering effects
+#####Ordering effects
 ```{r}
 #Additionally considers order effects
 MEModel_abs_ordered <- lmer(rating ~ condition + (1 | subject_id) + (1 | phenomenon) + order, data=df_long_ME)
